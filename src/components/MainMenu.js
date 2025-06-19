@@ -94,7 +94,22 @@ export default function MainMenu({ foods, onAddToCart, title }) {
             onClick={() => handleCardClick(food)}
           >
             {/* 이미지 자리 */}
-            <div className="w-full h-24 bg-gray-100 mb-2 rounded" />
+            <div className="w-full h-24 mb-2 rounded overflow-hidden">
+              {food.image ? (
+                <img 
+                  src={food.image} 
+                  alt={food.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+              ) : null}
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm" style={{ display: food.image ? 'none' : 'flex' }}>
+                이미지 없음
+              </div>
+            </div>
             {/* 이름 + 가격 */}
             <div className="text-center">
               <p className="text-xl font-semibold text-amber-900">{food.name}</p>
@@ -109,7 +124,22 @@ export default function MainMenu({ foods, onAddToCart, title }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-3xl shadow-2xl flex w-[1000px] max-w-[98vw] p-14 relative">
             {/* 왼쪽: 상품 이미지 */}
-            <div className="w-96 h-96 bg-gray-100 rounded-2xl mr-14 flex-shrink-0" />
+            <div className="w-96 h-96 rounded-2xl mr-14 flex-shrink-0 overflow-hidden shadow-lg">
+              {selectedFood.image ? (
+                <img 
+                  src={selectedFood.image} 
+                  alt={selectedFood.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-lg" style={{ display: selectedFood.image ? 'none' : 'flex' }}>
+                이미지 없음
+              </div>
+            </div>
             {/* 오른쪽: 세부 주문 */}
             <div className="flex flex-col flex-1">
               <div className="mb-2">

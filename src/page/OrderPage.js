@@ -1,19 +1,123 @@
 import React, { useState } from "react";
 import SideMenu from "../components/SideMenu";
 import MainMenu from "../components/MainMenu";
+import PaymentOverlay from "../components/PaymentOverlay";
+import NotificationOverlay from "../components/NotificationOverlay";
 
 const categories = ["파스타", "사이드메뉴", "음료"];
 
 const foodsByCategory = {
   파스타: [
-    { name: "로제파스타", price: 14000 },
-    { name: "알리오올리오", price: 13000 },
-    { name: "봉골레", price: 13500 },
-    { name: "까르보나라", price: 14500 },
-    { name: "크림베이컨", price: 15000 },
+    { 
+      name: "로제파스타", 
+      price: 14000,
+      image: "/rose.jpg",
+      options: [
+        {
+          name: "면 추가",
+          values: [
+            { label: "면 추가", value: "noodle_extra", price: 2000 }
+          ]
+        }
+      ]
+    },
+    { 
+      name: "알리오올리오", 
+      price: 13000,
+      image: "/alio.jpg",
+      options: [
+        {
+          name: "면 추가",
+          values: [
+            { label: "면 추가", value: "noodle_extra", price: 2000 }
+          ]
+        }
+      ]
+    },
+    { 
+      name: "봉골레", 
+      price: 13500,
+      image: "/bongole.jpg",
+      options: [
+        {
+          name: "면 추가",
+          values: [
+            { label: "면 추가", value: "noodle_extra", price: 2000 }
+          ]
+        }
+      ]
+    },
+    { 
+      name: "까르보나라", 
+      price: 14500,
+      image: "/carbo.jpg",
+      options: [
+        {
+          name: "면 추가",
+          values: [
+            { label: "면 추가", value: "noodle_extra", price: 2000 }
+          ]
+        }
+      ]
+    },
+    { 
+      name: "크림베이컨", 
+      price: 15000,
+      image: "/cream.jpg",
+      options: [
+        {
+          name: "면 추가",
+          values: [
+            { label: "면 추가", value: "noodle_extra", price: 2000 }
+          ]
+        }
+      ]
+    },
   ],
-  사이드메뉴: [],
-  음료: [],
+  사이드메뉴: [
+    { 
+      name: "미니감바스", 
+      price: 8000,
+      image: "/gambas.jpg"
+    },
+    { 
+      name: "미니 피자", 
+      price: 12000,
+      image: "/pizza.jpg"
+    },
+    { 
+      name: "샐러드", 
+      price: 9000,
+      image: "/salad.jpg"
+    },
+    { 
+      name: "마늘바게트", 
+      price: 4000,
+      image: "/garlicbread.jpg"
+    },
+  ],
+  음료: [
+    { 
+      name: "사이다", 
+      price: 3000,
+      image: "/cider.jpg"
+    },
+    { 
+      name: "콜라",   
+      price: 3000,
+      image: "/cola.jpg"
+    },
+    { 
+      name: "레몬에이드", 
+      price: 4500,
+      image: "/lemonade.jpg"
+    },
+    { 
+      name: "아이스티", 
+      price: 4000,
+      image: "/icetea.jpg"
+    },
+  ],
 };
 
 function CartOverlay({ cart, onClose, onRemove, onOrder }) {
@@ -61,12 +165,29 @@ function CartOverlay({ cart, onClose, onRemove, onOrder }) {
 export default function OrderPage() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  let notificationId = React.useRef(0);
+
+  // 알림 추가 함수
+  const pushNotification = (notification) => {
+    const id = notificationId.current++;
+    setNotifications((prev) => [...prev, { ...notification, id }]);
+  };
+
+  // 알림 제거 함수
+  const removeNotification = (id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
 
   // 장바구니 추가 함수 (MainMenu에 전달)
   const handleAddToCart = (item) => {
     setCart(prev => [...prev, item]);
-    // setCartOpen(true); // 자동 오픈 제거
+    pushNotification({
+      message: `${item.name}이(가) 장바구니에 추가되었습니다!`,
+      type: "success"
+    });
   };
 
   // 장바구니 삭제
@@ -74,12 +195,31 @@ export default function OrderPage() {
     setCart(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // 주문하기(예시)
+  // 주문하기 - 결제페이지 열기
   const handleOrder = () => {
-    alert("주문이 완료되었습니다!");
-    setCart([]);
+    setPaymentOpen(true);
     setCartOpen(false);
   };
+
+  // 결제 완료 처리
+  const handlePaymentComplete = () => {
+    setCart([]);
+    setPaymentOpen(false);
+    pushNotification({
+      message: "결제가 완료되었습니다! 주문이 접수되었습니다.",
+      type: "success"
+    });
+  };
+
+  // 직원호출 처리
+  const handleStaffCall = () => {
+    pushNotification({
+      message: "직원이 호출되었습니다. 잠시만 기다려주세요.",
+      type: "info"
+    });
+  };
+
+  const total = cart.reduce((sum, item) => sum + item.totalPrice, 0);
 
   return (
     <div className="min-h-screen flex relative">
@@ -88,6 +228,7 @@ export default function OrderPage() {
         selectedCategory={selectedCategory}
         onCategoryClick={setSelectedCategory}
         onCartClick={() => setCartOpen(true)}
+        onStaffCall={handleStaffCall}
       />
       <MainMenu foods={foodsByCategory[selectedCategory] || []} onAddToCart={handleAddToCart} title={selectedCategory} />
       {cartOpen && (
@@ -101,6 +242,27 @@ export default function OrderPage() {
           />
         </>
       )}
+      {paymentOpen && (
+        <PaymentOverlay
+          cart={cart}
+          total={total}
+          onClose={() => setPaymentOpen(false)}
+          onPaymentComplete={handlePaymentComplete}
+        />
+      )}
+      {/* 알림 스택 */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 items-end">
+        {notifications.map((n, idx) => (
+          <NotificationOverlay
+            key={n.id}
+            message={n.message}
+            type={n.type}
+            onClose={() => removeNotification(n.id)}
+            style={{ zIndex: 50 + notifications.length - idx }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
+

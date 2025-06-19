@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SideMenu({ categories, selectedCategory, onCategoryClick, onCartClick }) {
+export default function SideMenu({ categories, selectedCategory, onCategoryClick, onCartClick, onStaffCall }) {
   return (
     <div className="w-1/5 bg-amber-900 p-4 flex flex-col justify-between">
       {/* 상단: 로고 + 메뉴 */}
@@ -22,7 +22,10 @@ export default function SideMenu({ categories, selectedCategory, onCategoryClick
           <button className="flex-1 bg-white text-amber-900 py-2 rounded text-sm font-medium hover:bg-amber-100">
             주문내역
           </button>
-          <button className="flex-1 bg-white text-amber-900 py-2 rounded text-sm font-medium hover:bg-amber-100">
+          <button 
+            className="flex-1 bg-white text-amber-900 py-2 rounded text-sm font-medium hover:bg-amber-100"
+            onClick={onStaffCall}
+          >
             직원호출
           </button>
         </div>
